@@ -13,8 +13,10 @@ FMP_API_KEY = os.getenv("FMP_API_KEY")  # Financial Modeling Prep
 GOOGLE_GENAI_API_KEY = os.getenv("GOOGLE_GENAI_API_KEY")
 
 # LLM Settings
-LLM_MODEL = "gemini-2.5-flash"  # Free
-LLM_TEMPERATURE = 0  # Deterministic outputs
+LLM_MODEL = "gemini-2.5-flash"  # Fast model for analysts and debaters
+SUPERVISOR_MODEL = "gemini-2.5-pro"  # Deep thinking model for supervisor
+LLM_TEMPERATURE = 0  # Deterministic outputs for analysts
+SUPERVISOR_TEMPERATURE = 0.7  # More creative for supervisor synthesis
 
 # Financial Modeling Prep (FMP) Settings
 FMP_BASE_URL = "https://financialmodelingprep.com/api/v3"

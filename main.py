@@ -95,6 +95,51 @@ def print_analysis_summary(result: dict):
         print_section("FINAL RECOMMENDATION", width=80)
         print(f"\n{result['rationale']}")
 
+        # Risk-Tiered Recommendations (from supervisor_decision)
+        if 'supervisor_decision' in result and result['supervisor_decision']:
+            try:
+                supervisor = json.loads(result['supervisor_decision'])
+
+                print_section("RISK-TIERED RECOMMENDATIONS", width=80)
+
+                # Low Risk
+                low_risk = supervisor.get('low_risk_recommendation', {})
+                print(f"\n🛡️  LOW RISK (Conservative Investors):")
+                print(f"  Action: {low_risk.get('action', 'N/A').upper().replace('_', ' ')}")
+                print(f"  Position Size: {low_risk.get('position_size', 'N/A').upper()}")
+                print(f"  Entry Strategy: {low_risk.get('entry_strategy', 'N/A')}")
+                if low_risk.get('stop_loss'):
+                    print(f"  Stop Loss: {low_risk.get('stop_loss')}")
+                print(f"  Rationale: {low_risk.get('rationale', 'N/A')}")
+
+                # Medium Risk
+                medium_risk = supervisor.get('medium_risk_recommendation', {})
+                print(f"\n⚖️  MEDIUM RISK (Balanced Investors):")
+                print(f"  Action: {medium_risk.get('action', 'N/A').upper().replace('_', ' ')}")
+                print(f"  Position Size: {medium_risk.get('position_size', 'N/A').upper()}")
+                print(f"  Entry Strategy: {medium_risk.get('entry_strategy', 'N/A')}")
+                if medium_risk.get('stop_loss'):
+                    print(f"  Stop Loss: {medium_risk.get('stop_loss')}")
+                print(f"  Rationale: {medium_risk.get('rationale', 'N/A')}")
+
+                # High Risk
+                high_risk = supervisor.get('high_risk_recommendation', {})
+                print(f"\n🚀 HIGH RISK (Aggressive Traders):")
+                print(f"  Action: {high_risk.get('action', 'N/A').upper().replace('_', ' ')}")
+                print(f"  Position Size: {high_risk.get('position_size', 'N/A').upper()}")
+                print(f"  Entry Strategy: {high_risk.get('entry_strategy', 'N/A')}")
+                if high_risk.get('stop_loss'):
+                    print(f"  Stop Loss: {high_risk.get('stop_loss')}")
+                print(f"  Rationale: {high_risk.get('rationale', 'N/A')}")
+
+                # Additional supervisor insights
+                print(f"\n📊 Bull vs Bear Strength:")
+                print(f"  Bull Case Strength: {supervisor.get('bull_case_strength', 0)}/10")
+                print(f"  Bear Case Strength: {supervisor.get('bear_case_strength', 0)}/10")
+
+            except json.JSONDecodeError:
+                print("\n⚠️  Could not parse supervisor decision")
+
     except json.JSONDecodeError as e:
         print(f"\nWarning: Could not parse some analysis results: {e}")
         print(f"\nRaw rationale: {result.get('rationale', 'N/A')}")

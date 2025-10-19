@@ -18,6 +18,8 @@ from simplified_tradingagents.state import TradingState
 from simplified_tradingagents.config import (
     LLM_MODEL,
     LLM_TEMPERATURE,
+    SUPERVISOR_MODEL,
+    SUPERVISOR_TEMPERATURE,
     GOOGLE_GENAI_API_KEY
 )
 
@@ -59,18 +61,28 @@ class TradingAgentsGraph:
         """
         self.debug = debug
 
-        # Initialize LLM
+        # Initialize LLMs - separate models for analysts/debaters vs supervisor
         model_name = llm_model or LLM_MODEL
         temperature = llm_temperature if llm_temperature is not None else LLM_TEMPERATURE
 
+        # Fast model for analysts and debaters
         self.llm = ChatGoogleGenerativeAI(
             model=model_name,
             temperature=temperature,
             google_api_key=GOOGLE_GENAI_API_KEY
         )
 
+        # Deep thinking model for supervisor
+        self.supervisor_llm = ChatGoogleGenerativeAI(
+            model=SUPERVISOR_MODEL,
+            temperature=SUPERVISOR_TEMPERATURE,
+            google_api_key=GOOGLE_GENAI_API_KEY
+        )
+
         if self.debug:
-            print(f"[TradingAgentsGraph] Initialized with model: {model_name}, temperature: {temperature}")
+            print(f"[TradingAgentsGraph] Initialized with:")
+            print(f"  - Analysts/Debaters: {model_name}, temperature: {temperature}")
+            print(f"  - Supervisor: {SUPERVISOR_MODEL}, temperature: {SUPERVISOR_TEMPERATURE}")
 
         # Build the graph
         self.graph = self._build_graph()
@@ -106,7 +118,7 @@ class TradingAgentsGraph:
         fundamentals_analyst_node = create_fundamentals_analyst(self.llm)
         bull_debater_node = create_bull_debater(self.llm)
         bear_debater_node = create_bear_debater(self.llm)
-        supervisor_node = create_supervisor(self.llm)
+        supervisor_node = create_supervisor(self.supervisor_llm)  # Use deep thinking model
 
         # Add nodes to the graph
         workflow.add_node("market_analyst", market_analyst_node)
