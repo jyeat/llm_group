@@ -1,0 +1,15 @@
+{
+  "ticker": "AAPL",
+  "date": "2025-10-26",
+  "lookback_days": 14,
+  "relevance_threshold": 0.45,
+  "news_analysis": "",
+  "market_analysis": "",
+  "fundamental_analysis": "",
+  "bull_argument": "",
+  "bear_argument": "",
+  "decision": "neutral",
+  "rationale": "Investment decision for AAPL could not be fully formulated due to parsing error. Review individual analysis components before making decisions.",
+  "confidence": 0.2,
+  "supervisor_decision": "{\n  \"executive_summary\": \"Investment decision for AAPL could not be fully formulated due to parsing error. Review individual analysis components before making decisions.\",\n  \"market_thesis\": \"Technical analysis completed - see market_analysis for details.\",\n  \"fundamental_thesis\": \"Fundamental analysis completed - see fundamental_analysis for details.\",\n  \"bull_case_strength\": 5.0,\n  \"bear_case_strength\": 5.0,\n  \"consensus_direction\": \"neutral\",\n  \"low_risk_recommendation\": {\n    \"action\": \"hold\",\n    \"position_size\": \"minimal\",\n    \"entry_strategy\": \"Wait for clearer signals before acting\",\n    \"stop_loss\": null,\n    \"rationale\": \"Conservative approach warranted due to analysis formatting issues.\"\n  },\n  \"medium_risk_recommendation\": {\n    \"action\": \"hold\",\n    \"position_size\": \"quarter\",\n    \"entry_strategy\": \"Review raw analysis before making moves\",\n    \"stop_loss\": null,\n    \"rationale\": \"Moderate caution advised given incomplete synthesis.\"\n  },\n  \"high_risk_recommendation\": {\n    \"action\": \"hold\",\n    \"position_size\": \"half\",\n    \"entry_strategy\": \"Consider raw analysis data for trading decisions\",\n    \"stop_loss\": null,\n    \"rationale\": \"Even aggressive traders should review individual analyses given formatting error.\"\n  },\n  \"time_horizon_outlook\": {\n    \"short_term\": \"neutral\",\n    \"medium_term\": \"neutral\",\n    \"long_term\": \"neutral\"\n  },\n  \"key_decision_factors\": [\n    \"Decision formatting error: Value not declarable with JSON Schema, field: name='low_risk_recommendation' type=RiskTieredRecommendation required=True\",\n    \"Review individual analysis components\",\n    \"Wait for successful analysis run\"\n  ],\n  \"monitoring_points\": [\n    \"Re-run analysis to get proper synthesis\",\n    \"Check data quality and API connectivity\"\n  ],\n  \"final_confidence\": 0.2\n}"
+}
