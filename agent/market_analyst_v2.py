@@ -11,7 +11,11 @@
 
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
+<<<<<<< HEAD
 from simplified_tradingagents.config import LLM_MODEL, LLM_TEMPERATURE, GOOGLE_GENAI_API_KEY
+=======
+from config import LLM_MODEL, LLM_TEMPERATURE, GOOGLE_GENAI_API_KEY
+>>>>>>> 6c286e9 (upload my own trading agent)
 from pydantic import BaseModel, Field
 from typing import List, Literal
 import json
@@ -57,7 +61,11 @@ def create_market_analyst(llm):
         date = state.get("date", "")
 
         # Import tools from Yahoo Finance (yfinance) - FREE, no API key needed!
+<<<<<<< HEAD
         from simplified_tradingagents.tools.analyst_tools_yfinance import (
+=======
+        from tools.analyst_tools_yfinance import (
+>>>>>>> 6c286e9 (upload my own trading agent)
             get_stock_data,
             get_technical_indicators
         )

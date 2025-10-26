@@ -20,6 +20,10 @@ class TradingState(TypedDict):
     messages: List[BaseMessage]
 
     #output (phase 1 Analyst)
+<<<<<<< HEAD
+=======
+    news_analysis: str
+>>>>>>> 6c286e9 (upload my own trading agent)
     market_analysis: str
     fundamental_analysis: str
 

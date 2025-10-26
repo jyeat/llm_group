@@ -20,7 +20,11 @@ from dotenv import load_dotenv
 # Add the parent directory to Python path so we can import simplified_tradingagents
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+<<<<<<< HEAD
 from simplified_tradingagents.trading_graph import create_trading_graph
+=======
+from trading_graph import create_trading_graph
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -40,6 +44,12 @@ def print_analysis_summary(result: dict):
 
     print_section("TRADING ANALYSIS SUMMARY")
 
+<<<<<<< HEAD
+=======
+    ticker = result.get("ticker", "N/A")
+    date = result.get("date", "N/A")
+
+>>>>>>> 6c286e9 (upload my own trading agent)
     print(f"\nTicker: {result['ticker']}")
     print(f"Date: {result['date']}")
     print(f"Final Decision: {result['decision'].upper()}")
@@ -47,10 +57,23 @@ def print_analysis_summary(result: dict):
 
     # Parse JSON results
     try:
+<<<<<<< HEAD
+=======
+        news_analysis = json.loads(result.get('news_analysis', '{}'))
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analysis = json.loads(result['market_analysis'])
         fundamental_analysis = json.loads(result['fundamental_analysis'])
         bull_argument = json.loads(result['bull_argument'])
         bear_argument = json.loads(result['bear_argument'])
+<<<<<<< HEAD
+=======
+        
+        # News Analysis Summary
+        print_section("NEWS ANALYSIS", width=80)
+        print(f"Overall Sentiment: {str(news_analysis.get('overall_sentiment', 'N/A')).upper()}")
+        print(f"Confidence: {news_analysis.get('confidence_score', 0):.2%}")
+        print(f"Summary: {news_analysis.get('analysis_summary', 'N/A')}")
+>>>>>>> 6c286e9 (upload my own trading agent)
 
         # Market Analysis Summary
         print_section("MARKET ANALYSIS (Technical)", width=80)
@@ -151,6 +174,10 @@ def print_detailed_results(result: dict):
     print_section("DETAILED RESULTS (JSON)", width=80)
 
     sections = [
+<<<<<<< HEAD
+=======
+        ("NEWS ANALYSIS", result['news_analysis']),
+>>>>>>> 6c286e9 (upload my own trading agent)
         ("MARKET ANALYSIS", result['market_analysis']),
         ("FUNDAMENTAL ANALYSIS", result['fundamental_analysis']),
         ("BULL ARGUMENT", result['bull_argument']),

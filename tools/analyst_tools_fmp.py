@@ -9,7 +9,11 @@ from langchain_core.tools import tool
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
+<<<<<<< HEAD
 from simplified_tradingagents.config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
+=======
+from config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 
 @tool

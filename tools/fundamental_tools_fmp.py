@@ -7,7 +7,11 @@ using FMP instead of Alpha Vantage. FMP offers 250 API calls/day on free tier.
 
 from langchain_core.tools import tool
 import requests
+<<<<<<< HEAD
 from simplified_tradingagents.config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
+=======
+from config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 
 @tool

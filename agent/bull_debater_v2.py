@@ -51,7 +51,11 @@ class BullCaseOutput(BaseModel):
 def create_bull_debater(llm):
     """
     Creates a bull debater node that:
+<<<<<<< HEAD
     1. Reads market_analysis and fundamental_analysis from state
+=======
+    1. Reads news_analysis, market_analysis and fundamental_analysis from state
+>>>>>>> 6c286e9 (upload my own trading agent)
     2. Extracts and amplifies all bullish signals
     3. Builds strongest possible buy case
     4. Provides structured JSON output
@@ -67,6 +71,10 @@ def create_bull_debater(llm):
     def bull_debater_node(state):
         ticker = state.get("ticker", "")
         date = state.get("date", "")
+<<<<<<< HEAD
+=======
+        news_analysis = state.get("news_analysis", "No news analysis available")
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analysis = state.get("market_analysis", "No market analysis available")
         fundamental_analysis = state.get("fundamental_analysis", "No fundamental analysis available")
 
@@ -79,6 +87,12 @@ Your role is to advocate for the BULLISH position by:
 3. Building a compelling investment thesis for why this stock will RISE
 4. Being intellectually honest about risks (but still maintaining bullish stance)
 
+<<<<<<< HEAD
+=======
+**NEWS ANALYSIS:**
+{news_analysis}
+
+>>>>>>> 6c286e9 (upload my own trading agent)
 **MARKET ANALYSIS:**
 {market_analysis}
 
@@ -86,6 +100,14 @@ Your role is to advocate for the BULLISH position by:
 {fundamental_analysis}
 
 ---
+<<<<<<< HEAD
+=======
+IMPORTANT NEWS GUIDANCE:
+- Use positive/constructive items from NEWS for bullish signals and catalysts (e.g., demand strength, easing regulation, favorable sector flows).
+- If referencing articles, use their titles or themes only (NO URLs; do not fabricate details).
+- Include near-term NEWS catalysts with dates/timings when available (events, product launches, guidance, regulatory milestones).
+- Use macro/sector items ONLY if they are relevant to {ticker} per the news analysis.
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 **YOUR TASK: BUILD THE STRONGEST BULL CASE**
 
@@ -148,6 +170,10 @@ Your role is to advocate for the BULLISH position by:
 - Be intellectually honest about risks (but maintain bullish stance)
 - Think like a passionate bull who wants others to see the opportunity
 - Cite evidence from both technical and fundamental analysis
+<<<<<<< HEAD
+=======
+- Do NOT invent facts beyond what is provided
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 ---
 
@@ -204,11 +230,22 @@ Respond ONLY with valid JSON matching this exact structure (no markdown, no extr
                 "thesis_summary": f"Bull case for {ticker} could not be fully formulated due to parsing error, but data suggests potential upside opportunities exist.",
                 "bullish_signals": {
                     "technical_signals": ["Analysis data collected - see market_analysis"],
+<<<<<<< HEAD
                     "fundamental_signals": ["Analysis data collected - see fundamental_analysis"]
                 },
                 "catalysts": {
                     "near_term": ["Technical setup or fundamental strength may provide upside"],
                     "long_term": ["Company fundamentals may support growth"]
+=======
+                    "fundamental_signals": ["Analysis data collected - see fundamental_analysis",
+                                            "News indicates potential positives — see news_analysis for supportive themes/catalysts"]
+                },
+                "catalysts": {
+                    "near_term": ["Technical setup or fundamental strength may provide upside",
+                                  "News-dated catalysts may act as near-term triggers (see news_analysis)"],
+                    "long_term": ["Company fundamentals may support growth",
+                                  "Durable positive themes in news could reinforce long-term thesis"]
+>>>>>>> 6c286e9 (upload my own trading agent)
                 },
                 "target_price_direction": "moderately_higher",
                 "time_horizon": "medium_term",
