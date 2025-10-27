@@ -14,8 +14,13 @@ from typing import Dict, Any
 from langgraph.graph import StateGraph, END
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+<<<<<<< HEAD
 from simplified_tradingagents.state import TradingState
 from simplified_tradingagents.config import (
+=======
+from state import TradingState
+from config import (
+>>>>>>> 6c286e9 (upload my own trading agent)
     LLM_MODEL,
     LLM_TEMPERATURE,
     SUPERVISOR_MODEL,
@@ -24,11 +29,20 @@ from simplified_tradingagents.config import (
 )
 
 # Import agent factories
+<<<<<<< HEAD
 from simplified_tradingagents.agent.market_analyst_v2 import create_market_analyst
 from simplified_tradingagents.agent.fundamentals_analyst_v2 import create_fundamentals_analyst
 from simplified_tradingagents.agent.bull_debater_v2 import create_bull_debater
 from simplified_tradingagents.agent.bear_debater_v2 import create_bear_debater
 from simplified_tradingagents.agent.supervisor_v2 import create_supervisor
+=======
+from agent.market_analyst_v2 import create_market_analyst
+from agent.fundamentals_analyst_v2 import create_fundamentals_analyst
+from agent.news_analyst import create_news_analyst
+from agent.bull_debater_v2 import create_bull_debater
+from agent.bear_debater_v2 import create_bear_debater
+from agent.supervisor_v2 import create_supervisor
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 
 class TradingAgentsGraph:
@@ -95,6 +109,11 @@ class TradingAgentsGraph:
 
         START
           ↓
+<<<<<<< HEAD
+=======
+        news_analyst (news analysis)
+          ↓
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analyst (technical analysis)
           ↓
         fundamentals_analyst (financial analysis)
@@ -114,6 +133,10 @@ class TradingAgentsGraph:
         workflow = StateGraph(TradingState)
 
         # Create agent nodes using factory functions
+<<<<<<< HEAD
+=======
+        news_analyst_node = create_news_analyst(self.llm)
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analyst_node = create_market_analyst(self.llm)
         fundamentals_analyst_node = create_fundamentals_analyst(self.llm)
         bull_debater_node = create_bull_debater(self.llm)
@@ -121,6 +144,10 @@ class TradingAgentsGraph:
         supervisor_node = create_supervisor(self.supervisor_llm)  # Use deep thinking model
 
         # Add nodes to the graph
+<<<<<<< HEAD
+=======
+        workflow.add_node("news_analyst", news_analyst_node)  
+>>>>>>> 6c286e9 (upload my own trading agent)
         workflow.add_node("market_analyst", market_analyst_node)
         workflow.add_node("fundamentals_analyst", fundamentals_analyst_node)
         workflow.add_node("bull_debater", bull_debater_node)
@@ -128,7 +155,12 @@ class TradingAgentsGraph:
         workflow.add_node("supervisor", supervisor_node)
 
         # Define the linear workflow edges
+<<<<<<< HEAD
         workflow.set_entry_point("market_analyst")
+=======
+        workflow.set_entry_point("news_analyst")        
+        workflow.add_edge("news_analyst", "market_analyst")
+>>>>>>> 6c286e9 (upload my own trading agent)
         workflow.add_edge("market_analyst", "fundamentals_analyst")
         workflow.add_edge("fundamentals_analyst", "bull_debater")
         workflow.add_edge("bull_debater", "bear_debater")
@@ -140,7 +172,11 @@ class TradingAgentsGraph:
 
         if self.debug:
             print("[TradingAgentsGraph] Graph compiled successfully")
+<<<<<<< HEAD
             print("Workflow: market_analyst → fundamentals_analyst → bull_debater → bear_debater → supervisor")
+=======
+            print("Workflow: new_analyst → market_analyst → fundamentals_analyst → bull_debater → bear_debater → supervisor")
+>>>>>>> 6c286e9 (upload my own trading agent)
 
         return compiled_graph
 
@@ -149,18 +185,36 @@ class TradingAgentsGraph:
         Run the complete trading analysis for a given ticker and date.
 
         This executes the full agent workflow:
+<<<<<<< HEAD
         1. Fetches technical data and analyzes market conditions
         2. Fetches fundamental data and analyzes financial health
         3. Builds bullish case from both analyses
         4. Builds bearish case from both analyses
         5. Synthesizes all perspectives into risk-tiered recommendations
+=======
+        1. Fetches company-relevant news (company + sector/macro filtered) and analyzes sentiment/themes
+        2. Fetches technical data and analyzes market conditions
+        3. Fetches fundamental data and analyzes financial health
+        4. Builds bullish case from both analyses
+        5. Builds bearish case from both analyses
+        6. Synthesizes all perspectives into risk-tiered recommendations
+>>>>>>> 6c286e9 (upload my own trading agent)
 
         Args:
             ticker: Stock ticker symbol (e.g., "AAPL", "MSFT")
             date: Analysis date in YYYY-MM-DD format
+<<<<<<< HEAD
 
         Returns:
             Dictionary containing the final state with all analysis results:
+=======
+            lookback_days: (optional) Lookback window for news analysis in days (default: 7)
+
+        Returns:
+            Dictionary containing the final state with all analysis results:
+            - news_analysis: Structured JSON from the News Analyst
+              (overall_sentiment, confidence_score, themes, risks, catalysts, evidence articles, sources, coverage stats)
+>>>>>>> 6c286e9 (upload my own trading agent)
             - market_analysis: Technical analysis JSON
             - fundamental_analysis: Fundamental analysis JSON
             - bull_argument: Bullish case JSON
@@ -183,6 +237,15 @@ class TradingAgentsGraph:
             "ticker": ticker,
             "date": date,
             "messages": [],
+<<<<<<< HEAD
+=======
+            
+            # 给 news_analyst 的默认参数（可按需调整）
+            "lookback_days": 14,          # 放宽窗口，提升命中率（原 7）
+            "relevance_threshold": 0.45,  # 降低阈值，减少“无相关新闻”（原 0.6）
+
+            "news_analysis": "",    
+>>>>>>> 6c286e9 (upload my own trading agent)
             "market_analysis": "",
             "fundamental_analysis": "",
             "bull_argument": "",
@@ -227,8 +290,19 @@ class TradingAgentsGraph:
             print(f"  - Decision: {final_state.get('decision', 'N/A')}")
             print(f"  - Confidence: {final_state.get('confidence', 0.0):.2f}")
             print(f"  - Rationale: {final_state.get('rationale', 'N/A')[:100]}...")
+<<<<<<< HEAD
 
         return final_state
+=======
+        
+        
+        merged_state = {**initial_state, **final_state}
+        merged_state.setdefault("ticker", ticker)
+        merged_state.setdefault("date", date)
+        
+        return merged_state
+        # return final_state
+>>>>>>> 6c286e9 (upload my own trading agent)
 
     def get_graph_visualization(self) -> str:
         """
@@ -245,6 +319,23 @@ Trading Agents Workflow:
 └─────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
+<<<<<<< HEAD
+=======
+│                      NEWS ANALYST                           │
+│  - Fetches company + macro/sector news                     │
+│  - Dedupe, normalize, and relevance-filter (company focus) │
+│  - Sort by relevance & recency; cap article count          │
+│  - Synthesizes themes, catalysts, risks                    │
+│  - Outputs: news_analysis (structured JSON)                │
+│    • analysis_summary, overall_sentiment, confidence_score │
+│    • macro_themes, company_impact                          │
+│    • catalysts, risk_radar                                 │
+│    • highlighted_articles (title/source/time/url/score)    │
+│    • coverage_stats, sources                               │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+>>>>>>> 6c286e9 (upload my own trading agent)
 │                    MARKET ANALYST                           │
 │  - Fetches stock price data (OHLCV)                        │
 │  - Fetches technical indicators (RSI, SMA)                 │

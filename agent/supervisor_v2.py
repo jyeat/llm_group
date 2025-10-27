@@ -72,7 +72,11 @@ class SupervisorDecision(BaseModel):
 def create_supervisor(llm):
     """
     Creates a supervisor node that:
+<<<<<<< HEAD
     1. Reads all prior analysis from state (market, fundamental, bull, bear)
+=======
+    1. Reads all prior analysis from state (news, market, fundamental, bull, bear)
+>>>>>>> 6c286e9 (upload my own trading agent)
     2. Synthesizes competing viewpoints
     3. Weighs evidence and arguments
     4. Provides risk-tiered recommendations (low/medium/high risk)
@@ -89,6 +93,10 @@ def create_supervisor(llm):
     def supervisor_node(state):
         ticker = state.get("ticker", "")
         date = state.get("date", "")
+<<<<<<< HEAD
+=======
+        news_analysis = state.get("news_analysis", "No news analysis available")
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analysis = state.get("market_analysis", "No market analysis available")
         fundamental_analysis = state.get("fundamental_analysis", "No fundamental analysis available")
         bull_argument = state.get("bull_argument", "No bull case available")
@@ -98,10 +106,18 @@ def create_supervisor(llm):
         supervisor_prompt = f"""You are the CHIEF INVESTMENT OFFICER making final trading recommendations for {ticker}.
 
 You have received comprehensive analysis from your team:
+<<<<<<< HEAD
 1. Market Analyst (technical analysis)
 2. Fundamental Analyst (financial analysis)
 3. Bull Advocate (strongest bullish case)
 4. Bear Advocate (strongest bearish case)
+=======
+1. News Analyst (company + industry + macro news)
+2. Market Analyst (technical analysis)
+3. Fundamental Analyst (financial analysis)
+4. Bull Advocate (strongest bullish case)
+5. Bear Advocate (strongest bearish case)
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 Your role is to:
 - Synthesize all perspectives into a coherent investment thesis
@@ -109,6 +125,12 @@ Your role is to:
 - Provide RISK-TIERED recommendations for different investor profiles
 - Give clear, actionable guidance with specific entry/exit strategies
 
+<<<<<<< HEAD
+=======
+**NEWS ANALYSIS (Company-relevant):**  
+{news_analysis}
+
+>>>>>>> 6c286e9 (upload my own trading agent)
 **MARKET ANALYSIS (Technical):**
 {market_analysis}
 
@@ -122,12 +144,24 @@ Your role is to:
 {bear_argument}
 
 ---
+<<<<<<< HEAD
+=======
+IMPORTANT NEWS GUIDANCE:                 # ✅ 新增指引（不改输出结构）
+- Integrate NEWS themes/catalysts/risks into your synthesis where they materially affect {ticker}.
+- Prefer dated catalysts and concrete events for monitoring_points (earnings dates, product launches, regulatory milestones).
+- Reference titles/themes only (no URLs) and do NOT invent facts beyond the provided analyses.
+
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 **YOUR TASK: PROVIDE FINAL INVESTMENT DECISION**
 
 **1. EXECUTIVE SUMMARY (4-5 sentences)**
 - Synthesize the complete picture for {ticker}
+<<<<<<< HEAD
 - What do technicals + fundamentals + bull/bear debate tell you?
+=======
+- What do technicals + fundamentals + new + bull/bear debate tell you?
+>>>>>>> 6c286e9 (upload my own trading agent)
 - What's the balanced investment thesis?
 - What's the recommended overall approach?
 
@@ -188,11 +222,19 @@ You must provide THREE separate recommendations for different risk profiles:
 **8. KEY DECISION FACTORS (3-5 items)**
 What are the MOST important factors driving your recommendations?
 - Be specific about what data/signals matter most
+<<<<<<< HEAD
+=======
+- Include material NEWS themes/catalysts if applicable
+>>>>>>> 6c286e9 (upload my own trading agent)
 - Examples: "Oversold RSI with support holding", "Deteriorating margins despite revenue growth"
 
 **9. MONITORING POINTS (2-4 items)**
 What should investors watch that could change your thesis?
 - Key levels, metrics, events that would invalidate or strengthen the thesis
+<<<<<<< HEAD
+=======
+- Prefer dated NEWS events when available (e.g., announced timelines) 
+>>>>>>> 6c286e9 (upload my own trading agent)
 - Examples: "Break below $50 invalidates bullish case", "Q4 earnings report crucial for growth thesis"
 
 **10. FINAL CONFIDENCE (0.0 to 1.0)**

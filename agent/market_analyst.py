@@ -22,7 +22,11 @@ from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import 
 from langgraph.prebuilt import create_react_agent
+<<<<<<< HEAD
 from analyst_tools.tools import get_stock_data, get_technical_indicators
+=======
+from tools.analyst_tools import get_stock_data, get_technical_indicators
+>>>>>>> 6c286e9 (upload my own trading agent)
 
 
 def create_market_analyst(llm: ChatOpenAI):

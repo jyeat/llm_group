@@ -91,7 +91,11 @@ def create_fundamentals_analyst(llm):
         date = state.get("date", "")
 
         # Import tools from Yahoo Finance (yfinance) - FREE, no API key needed!
+<<<<<<< HEAD
         from simplified_tradingagents.tools.fundamental_tools_yfinance import (
+=======
+        from tools.fundamental_tools_yfinance import (
+>>>>>>> 6c286e9 (upload my own trading agent)
             get_company_overview,
             get_balance_sheet,
             get_income_statement,

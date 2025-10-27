@@ -51,7 +51,11 @@ class BearCaseOutput(BaseModel):
 def create_bear_debater(llm):
     """
     Creates a bear debater node that:
+<<<<<<< HEAD
     1. Reads market_analysis and fundamental_analysis from state
+=======
+    1. Reads news_analysis, market_analysis and fundamental_analysis from state
+>>>>>>> 6c286e9 (upload my own trading agent)
     2. Extracts and amplifies all bearish signals
     3. Builds strongest possible sell/avoid case
     4. Provides counter-arguments to bullish thesis
@@ -68,6 +72,10 @@ def create_bear_debater(llm):
     def bear_debater_node(state):
         ticker = state.get("ticker", "")
         date = state.get("date", "")
+<<<<<<< HEAD
+=======
+        news_analysis = state.get("news_analysis", "No news analysis available")
+>>>>>>> 6c286e9 (upload my own trading agent)
         market_analysis = state.get("market_analysis", "No market analysis available")
         fundamental_analysis = state.get("fundamental_analysis", "No fundamental analysis available")
 
@@ -81,6 +89,12 @@ Your role is to advocate for the BEARISH position by:
 4. Providing counter-arguments to any bullish thesis
 5. Being a critical skeptic who finds flaws and risks
 
+<<<<<<< HEAD
+=======
+**NEWS ANALYSIS (Company-relevant):**
+{news_analysis}
+
+>>>>>>> 6c286e9 (upload my own trading agent)
 **MARKET ANALYSIS:**
 {market_analysis}
 
@@ -153,7 +167,11 @@ Your role is to advocate for the BEARISH position by:
 - Act as a critical skeptic looking for flaws and risks
 - Think like a passionate bear who wants others to see the danger
 - Challenge bullish narratives with evidence
+<<<<<<< HEAD
 - Cite evidence from both technical and fundamental analysis
+=======
+- Cite evidence from technical, news analysis and fundamental analysis
+>>>>>>> 6c286e9 (upload my own trading agent)
 - Be intellectually honest but maintain bearish stance
 
 ---
@@ -211,11 +229,22 @@ Respond ONLY with valid JSON matching this exact structure (no markdown, no extr
                 "thesis_summary": f"Bear case for {ticker} could not be fully formulated due to parsing error, but data suggests potential downside risks exist.",
                 "bearish_signals": {
                     "technical_signals": ["Analysis data collected - see market_analysis"],
+<<<<<<< HEAD
                     "fundamental_signals": ["Analysis data collected - see fundamental_analysis"]
                 },
                 "downside_risks": {
                     "near_term": ["Technical weakness or fundamental concerns may create downside"],
                     "long_term": ["Company fundamentals may present risks"]
+=======
+                    "fundamental_signals": ["Analysis data collected - see fundamental_analysis", 
+                                            "News-related risks present - see news_analysis for negative themes/catalysts"]
+                },
+                "downside_risks": {
+                    "near_term": ["Technical weakness or fundamental concerns may create downside",
+                                  "News catalysts could trigger volatility (see news_analysis)"],
+                    "long_term": ["Company fundamentals may present risks",
+                                  "Macro/sector headwinds indicated in news may persist"]
+>>>>>>> 6c286e9 (upload my own trading agent)
                 },
                 "target_price_direction": "moderately_lower",
                 "time_horizon": "medium_term",
@@ -229,7 +258,11 @@ Respond ONLY with valid JSON matching this exact structure (no markdown, no extr
 
         # Step 3: Create condensed message history
         user_summary = HumanMessage(
+<<<<<<< HEAD
             content=f"Build the strongest bearish case for {ticker} based on market and fundamental analysis"
+=======
+            content=f"Build the strongest bearish case for {ticker} based on news, market and fundamental analysis"
+>>>>>>> 6c286e9 (upload my own trading agent)
         )
 
         formatted_bear_case = json.dumps(bear_case_json, indent=2)
