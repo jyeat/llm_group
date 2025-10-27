@@ -195,8 +195,8 @@ class TradingAgentsGraph:
             "messages": [],
             
             # 给 news_analyst 的默认参数（可按需调整）
-            "lookback_days": 14,          # 放宽窗口，提升命中率（原 7）
-            "relevance_threshold": 0.45,  # 降低阈值，减少“无相关新闻”（原 0.6）
+            "lookback_days": 45,          # 放宽窗口，提升命中率（原 7）
+            "relevance_threshold": 0.5,  # 降低阈值，减少“无相关新闻”（原 0.6）
 
             "news_analysis": "",    
             "market_analysis": "",
