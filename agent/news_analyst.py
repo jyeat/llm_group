@@ -244,9 +244,14 @@ def _sort_kept(items: List[dict]) -> List[dict]:
         ts = it.get("published_at") or ""
         try:
             d = datetime.fromisoformat(ts.replace("Z", ""))
+            timestamp = d.timestamp()
         except Exception:
-            d = datetime.min
-        return (-sc, -d.timestamp())
+            # Mark article as having missing/invalid date
+            it["date_missing"] = True
+            # Use 1970 timestamp (0.0) to sort missing dates to bottom
+            # This avoids Windows [Errno 22] on dates before 1970
+            timestamp = 0.0
+        return (-sc, -timestamp)
     return sorted(items, key=_key)
 
 def _estimate_unique_topics(items: List[dict]) -> int:
