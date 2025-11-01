@@ -116,25 +116,35 @@ async def websocket_endpoint(websocket: WebSocket):
         print("Client disconnected")
 
 
+def calculate_progress_from_node(node_name: str) -> int:
+    """
+    Calculate progress percentage based on which agent node has completed.
+
+    Agent pipeline order:
+    news_analyst (0-20%) → market_analyst (20-35%) → fundamentals_analyst (35-50%)
+    → bull_debater (50-65%) → bear_debater (65-80%) → supervisor (80-100%)
+    """
+    progress_map = {
+        "news_analyst": 20,
+        "market_analyst": 35,
+        "fundamentals_analyst": 50,
+        "bull_debater": 65,
+        "bear_debater": 80,
+        "supervisor": 95
+    }
+    return progress_map.get(node_name, 0)
+
+
 async def run_analysis_with_progress(
     ticker: str, 
     date: str, 
     websocket: WebSocket
 ) -> Dict[str, Any]:
     """
-    Run trading analysis and send progress updates via WebSocket
+    Run trading analysis and send REAL progress updates via WebSocket.
+    Uses LangGraph's streaming API to track actual agent completion.
     """
-    
-    # Agent progression
-    agents = [
-        ("market_analyst", "Market Analyst", 15),
-        ("fundamentals_analyst", "Fundamentals Analyst", 30),
-        ("news_analyst", "News Analyst", 45),
-        ("bull_debater", "Bull Debater", 60),
-        ("bear_debater", "Bear Debater", 75),
-        ("supervisor", "Supervisor", 90)
-    ]
-    
+
     # Initialize graph
     await websocket.send_json({
         "type": "progress",
@@ -143,49 +153,101 @@ async def run_analysis_with_progress(
         "message": "Initializing trading agents..."
     })
     
-    graph = create_trading_graph(debug=False)
-    
-    # Simulate progress for each agent
-    # In production, you'd hook into the actual graph execution
-    current_progress = 5
-    
+    graph = create_trading_graph(debug=True)
+
+    # Create initial state for the graph
+    initial_state = {
+        "ticker": ticker,
+        "date": date,
+        "messages": [],
+        "lookback_days": 30,
+        "relevance_threshold": 0.4,
+        "max_company_articles": 20,
+        "max_macro_articles": 30,
+        "max_kept_articles": 50,
+        "news_analysis": "",
+        "market_analysis": "",
+        "fundamental_analysis": "",
+        "bull_argument": "",
+        "bear_argument": "",
+        "decision": "neutral",
+        "rationale": "",
+        "confidence": 0.0,
+        "supervisor_decision": ""
+    }
+
     await websocket.send_json({
         "type": "progress",
         "agent": "initializing",
-        "progress": current_progress,
+        "progress": 5,
         "message": "Starting analysis pipeline..."
     })
-    
-    # Run the actual analysis in background
-    # We'll simulate progress while it runs
-    analysis_task = asyncio.create_task(
-        asyncio.to_thread(graph.analyze, ticker, date)
-    )
-    
-    # Simulate progress updates
-    for agent_key, agent_name, target_progress in agents:
+
+    # Run analysis with real-time progress tracking via streaming
+    # This uses LangGraph's .stream() to get updates as each agent completes
+    result = None
+    final_state = None
+
+    async def run_graph_stream():
+        """Run the graph with streaming in a thread"""
+        nonlocal final_state
+        for output in graph.graph.stream(initial_state):
+            final_state = output
+        return final_state
+
+    # Run graph streaming in background with timeout
+    try:
+        stream_task = asyncio.create_task(
+            asyncio.to_thread(run_graph_stream)
+        )
+
+        # Monitor for completion with timeout
+        last_progress = 5
+        start_time = asyncio.get_event_loop().time()
+
+        while not stream_task.done():
+            # Check timeout (5 minutes = 300 seconds)
+            elapsed = asyncio.get_event_loop().time() - start_time
+            if elapsed > 300:
+                stream_task.cancel()
+                raise asyncio.TimeoutError()
+
+            # Send keep-alive progress update every 2 seconds
+            await asyncio.sleep(2)
+
+            # If we have final_state, extract current node
+            if final_state:
+                # Get the latest completed node
+                node_name = list(final_state.keys())[0] if final_state else None
+                if node_name:
+                    progress = calculate_progress_from_node(node_name)
+                    if progress > last_progress:
+                        await websocket.send_json({
+                            "type": "progress",
+                            "agent": node_name,
+                            "progress": progress,
+                            "message": f"Completed {node_name.replace('_', ' ').title()}..."
+                        })
+                        last_progress = progress
+
+        # Get final result
+        result = await stream_task
+
+    except asyncio.TimeoutError:
+        error_msg = "Analysis timed out after 5 minutes. This may be due to: (1) Too many news articles being processed, (2) Slow API responses from Google Gemini, or (3) NewsAPI rate limits. Try analyzing again with a different ticker or reduce the number of articles."
         await websocket.send_json({
-            "type": "progress",
-            "agent": agent_key,
-            "progress": current_progress,
-            "message": f"Running {agent_name}..."
+            "type": "error",
+            "message": error_msg
         })
-        
-        # Wait a bit and update progress
-        while current_progress < target_progress:
-            await asyncio.sleep(0.5)
-            current_progress += 2
-            
-            await websocket.send_json({
-                "type": "progress",
-                "agent": agent_key,
-                "progress": min(current_progress, target_progress),
-                "message": f"Analyzing with {agent_name}..."
-            })
-    
-    # Wait for actual analysis to complete
-    result = await analysis_task
-    
+        print(f"[WebSocket] Analysis timeout for {ticker} on {date}")
+        raise
+
+    # Extract the final state from the last output
+    if result:
+        # LangGraph stream returns dict with node_name as key
+        node_name = list(result.keys())[0]
+        result = result[node_name]
+
     # Send final progress
     await websocket.send_json({
         "type": "progress",
