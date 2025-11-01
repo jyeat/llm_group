@@ -21,6 +21,12 @@ import uvicorn
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trading_graph import create_trading_graph
+from langsmith_config import setup_langsmith
+from dotenv import load_dotenv
+
+# Load environment variables and setup LangSmith
+load_dotenv()
+setup_langsmith()
 
 # Import cache_manager from same directory
 sys.path.insert(0, str(Path(__file__).resolve().parent))

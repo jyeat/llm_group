@@ -15,6 +15,11 @@ services:
       - NEWSAPI_KEY=${NEWSAPI_KEY}
       - FMP_API_KEY=${FMP_API_KEY:-}
       - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY:-}
+      # LangSmith (optional - for tracing and monitoring)
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT:-https://api.smith.langchain.com}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-trading-agents}
     env_file:
       - .env
     volumes:
@@ -42,6 +47,11 @@ services:
       - NEWSAPI_KEY=${NEWSAPI_KEY}
       - FMP_API_KEY=${FMP_API_KEY:-}
       - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY:-}
+      # LangSmith (optional)
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT:-https://api.smith.langchain.com}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-trading-agents}
     env_file:
       - .env
     volumes:

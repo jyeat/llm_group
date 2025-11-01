@@ -21,9 +21,13 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from trading_graph import create_trading_graph
+from langsmith_config import setup_langsmith
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Setup LangSmith tracing (optional - will skip if not configured)
+setup_langsmith()
 
 
 def print_section(title: str, content: str = None, width: int = 80):

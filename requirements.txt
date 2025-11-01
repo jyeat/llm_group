@@ -3,6 +3,7 @@ langchain>=0.1.0
 langchain-core>=0.1.0
 langchain-google-genai>=1.0.0
 langgraph>=0.0.20
+langsmith>=0.1.0
 
 # Data handling
 requests>=2.31.0
