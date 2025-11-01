@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Agents Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Background animated gradient -->
+    <div class="background-gradient"></div>
+    
+    <!-- Mouse follower light effect -->
+    <div class="mouse-light" id="mouseLight"></div>
+    
+    <!-- History Sidebar -->
+    <div class="history-sidebar" id="historySidebar">
+        <div class="history-header">
+            <h3>📚 Analysis History</h3>
+            <button class="btn-close-sidebar" onclick="toggleSidebar()">×</button>
+        </div>
+        <div class="history-stats" id="historyStats">
+            <div>Total: 0</div>
+            <div>Size: 0 MB</div>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="history-empty">No analysis history yet</div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Toggle Button -->
+    <button class="btn-toggle-sidebar" id="sidebarToggle" onclick="toggleSidebar()">
+        <span>📚</span>
+    </button>
+    
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="20" class="logo-circle"/>
+                        <path d="M15,25 L22,18 L22,32 L29,25 L36,32" class="logo-chart"/>
+                    </svg>
+                    <h1>Trading Agents Dashboard</h1>
+                </div>
+                <div class="theme-toggle" id="themeToggle">
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Input Section -->
+        <section class="input-section card">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="ticker">Stock Ticker</label>
+                    <input 
+                        type="text" 
+                        id="ticker" 
+                        placeholder="NVDA" 
+                        value="NVDA"
+                        class="input-field"
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label for="date">Analysis Date</label>
+                    <input 
+                        type="date" 
+                        id="date" 
+                        class="input-field"
+                    >
+                </div>
+                
+                <button id="analyzeBtn" class="btn-primary">
+                    <span class="btn-text">Start Analysis</span>
+                    <span class="btn-ripple"></span>
+                </button>
+            </div>
+        </section>
+        
+        <!-- Progress Section - 3 Stages Workflow -->
+        <section class="progress-section card" id="progressSection" style="display: none;">
+            <div class="progress-header">
+                <h3>📊 Analysis Workflow</h3>
+                <span class="progress-percentage" id="progressPercentage">0%</span>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-shine"></div>
+                </div>
+            </div>
+            
+            <!-- Stage 1: Data Collection -->
+            <div class="workflow-stage" id="stage1" data-stage="1">
+                <div class="stage-header">
+                    <div class="stage-number">1</div>
+                    <div class="stage-info">
+                        <h4>Data Collection</h4>
+                        <p>Gathering market, financial, and news data</p>
+                    </div>
+                    <div class="stage-status" id="stage1Status">⏳</div>
+                </div>
+                <div class="stage-agents">
+                    <div class="agent-item" data-agent="market_analyst">
+                        <span class="agent-icon">📊</span>
+                        <span class="agent-name">Market Analyst</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                    <div class="agent-item" data-agent="fundamentals_analyst">
+                        <span class="agent-icon">💰</span>
+                        <span class="agent-name">Fundamentals Analyst</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                    <div class="agent-item" data-agent="news_analyst">
+                        <span class="agent-icon">📰</span>
+                        <span class="agent-name">News Analyst</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stage 2: Position Building -->
+            <div class="workflow-stage" id="stage2" data-stage="2">
+                <div class="stage-header">
+                    <div class="stage-number">2</div>
+                    <div class="stage-info">
+                        <h4>Position Building</h4>
+                        <p>Forming bullish and bearish perspectives</p>
+                    </div>
+                    <div class="stage-status" id="stage2Status">⏳</div>
+                </div>
+                <div class="stage-agents">
+                    <div class="agent-item" data-agent="bull_debater">
+                        <span class="agent-icon">🐂</span>
+                        <span class="agent-name">Bull Debater</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                    <div class="agent-item" data-agent="bear_debater">
+                        <span class="agent-icon">🐻</span>
+                        <span class="agent-name">Bear Debater</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stage 3: Final Decision -->
+            <div class="workflow-stage" id="stage3" data-stage="3">
+                <div class="stage-header">
+                    <div class="stage-number">3</div>
+                    <div class="stage-info">
+                        <h4>Final Decision</h4>
+                        <p>Synthesizing insights into recommendations</p>
+                    </div>
+                    <div class="stage-status" id="stage3Status">⏳</div>
+                </div>
+                <div class="stage-agents">
+                    <div class="agent-item" data-agent="supervisor">
+                        <span class="agent-icon">👔</span>
+                        <span class="agent-name">Supervisor</span>
+                        <span class="agent-state">⏳</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-message" id="progressMessage">
+                Initializing...
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            
+            <!-- Agent Tabs -->
+            <div class="tabs card">
+                <div class="tab-list" id="tabList">
+                    <div class="tab active" data-tab="market_analyst">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-label">Market</span>
+                    </div>
+                    <div class="tab" data-tab="fundamentals_analyst">
+                        <span class="tab-icon">💰</span>
+                        <span class="tab-label">Fundamentals</span>
+                    </div>
+                    <div class="tab" data-tab="news_analyst">
+                        <span class="tab-icon">📰</span>
+                        <span class="tab-label">News</span>
+                    </div>
+                    <div class="tab" data-tab="bull_debater">
+                        <span class="tab-icon">🐂</span>
+                        <span class="tab-label">Bull Case</span>
+                    </div>
+                    <div class="tab" data-tab="bear_debater">
+                        <span class="tab-icon">🐻</span>
+                        <span class="tab-label">Bear Case</span>
+                    </div>
+                    <div class="tab" data-tab="supervisor">
+                        <span class="tab-icon">👔</span>
+                        <span class="tab-label">Supervisor</span>
+                    </div>
+                </div>
+                <div class="tab-indicator" id="tabIndicator"></div>
+            </div>
+            
+            <!-- Agent Content -->
+            <div class="agent-content card" id="agentContent">
+                <div class="content-loading">
+                    <div class="spinner"></div>
+                    <p>Loading results...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Final Decision -->
+        <section class="decision-section card" id="decisionSection" style="display: none;">
+            <div class="decision-header">
+                <h2>Final Decision</h2>
+            </div>
+            
+            <div class="decision-content">
+                <div class="decision-main">
+                    <div class="decision-badge" id="decisionBadge">
+                        <span class="decision-icon">🎯</span>
+                        <span class="decision-action" id="decisionAction">HOLD</span>
+                    </div>
+                    
+                    <div class="confidence-ring">
+                        <svg viewBox="0 0 100 100" class="confidence-svg">
+                            <circle cx="50" cy="50" r="45" class="confidence-bg"/>
+                            <circle cx="50" cy="50" r="45" class="confidence-progress" id="confidenceCircle"/>
+                        </svg>
+                        <div class="confidence-text">
+                            <span class="confidence-value" id="confidenceValue">0</span>
+                            <span class="confidence-label">Confidence</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-rationale">
+                    <h3>Rationale</h3>
+                    <p id="decisionRationale">Analyzing...</p>
+                </div>
+            </div>
+            
+            <div class="decision-actions">
+                <button class="btn-secondary" id="exportBtn">
+                    <span>📥 Export Report</span>
+                </button>
+                <button class="btn-secondary" id="newAnalysisBtn">
+                    <span>🔄 New Analysis</span>
+                </button>
+            </div>
+        </section>
+        
+        <!-- Fireworks Container (for completion animation) -->
+        <div class="fireworks" id="fireworks"></div>
+        
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
