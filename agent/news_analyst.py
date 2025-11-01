@@ -294,13 +294,10 @@ def create_news_analyst(llm):
         max_kept = int(state.get("max_kept_articles", 80))  # after relevance filter
 
         # Import NewsAPI tools (free alternative to Alpha Vantage)
-        try:
-            from simplified_tradingagents.tools.news_tools_newsapi import get_news, get_global_news
-        except Exception:
-            from tools.news_tools_newsapi import (
-                get_news,         # .invoke({"query": str, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "limit": int})
-                get_global_news   # .invoke({"curr_date": "YYYY-MM-DD", "look_back_days": int, "limit": int})
-            )
+        from tools.news_tools_newsapi import (
+            get_news,         # .invoke({"query": str, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "limit": int})
+            get_global_news   # .invoke({"curr_date": "YYYY-MM-DD", "look_back_days": int, "limit": int})
+        )
 
         # ---- Step 1: Fetch raw data deterministically ----
         end_date = datetime.fromisoformat(date_str).date()

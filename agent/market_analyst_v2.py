@@ -57,7 +57,7 @@ def create_market_analyst(llm):
         date = state.get("date", "")
 
         # Import tools from Yahoo Finance (yfinance) - FREE, no API key needed!
-        from simplified_tradingagents.tools.analyst_tools_yfinance import (
+        from tools.analyst_tools_yfinance import (
             get_stock_data,
             get_technical_indicators
         )
