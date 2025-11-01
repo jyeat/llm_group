@@ -122,10 +122,26 @@ def _fetch_newsapi(
             return articles[:limit]
         else:
             error_msg = data.get("message", "Unknown error")
-            print(f"NewsAPI error: {error_msg}")
+            error_code = data.get("code", "unknown")
+            print(f"[NewsAPI] Error [{error_code}]: {error_msg}")
+
+            # Provide helpful hints based on error type
+            if "apiKey" in error_msg.lower() or error_code == "apiKeyInvalid":
+                print("  → Check your NEWSAPI_KEY in .env file")
+                print("  → Sign up free at: https://newsapi.org/register")
+            elif "upgrade" in error_msg.lower() or "premium" in error_msg.lower():
+                print("  → This request requires a paid NewsAPI plan")
+                print("  → Free tier: 100 requests/day, 30 days history")
+            elif "rate" in error_msg.lower():
+                print("  → You've exceeded the rate limit (100 requests/day on free tier)")
+                print("  → Wait until tomorrow or upgrade your plan")
+            elif "date" in error_msg.lower():
+                print("  → Date range issue - free tier only supports last 30 days")
+                print(f"  → Requested: {from_date} to {to_date}")
+
             return []
     except Exception as e:
-        print(f"Error fetching from NewsAPI: {str(e)}")
+        print(f"[NewsAPI] Exception during fetch: {str(e)}")
         return []
 
 
@@ -348,6 +364,8 @@ def get_news(
     This version is intended for news_analyst nodes which will perform
     relevance filtering and Pydantic-constrained synthesis downstream.
 
+    Priority: NewsAPI FIRST, then yfinance as fallback.
+
     Args:
         query: Ticker symbol (e.g., 'AAPL').
         start_date: ISO 'YYYY-MM-DD' (inclusive start of window).
@@ -358,18 +376,52 @@ def get_news(
         A list of news item dicts (trimmed, filtered for title/url).
     """
     try:
-        # Try yfinance first
-        feed = _fetch_yfinance_news(query, limit)
+        feed = []
 
-        # Fallback to NewsAPI if available
-        if not feed and NEWSAPI_KEY:
-            feed = _fetch_newsapi(
-                q=f"{query} stock",
-                from_date=start_date,
-                to_date=end_date,
-                sort_by="publishedAt",
-                limit=limit
-            )
+        # Calculate actual lookback days
+        start_dt = datetime.fromisoformat(start_date).date()
+        end_dt = datetime.fromisoformat(end_date).date()
+        actual_days = (end_dt - start_dt).days
+
+        # Try NewsAPI FIRST (preferred source)
+        if NEWSAPI_KEY:
+            # Cap at 30 days for NewsAPI free tier
+            if actual_days > 30:
+                print(f"[NewsAPI] Warning: Free tier limited to 30 days. Requested {actual_days} days, using last 30 days.")
+                capped_start = end_dt - timedelta(days=30)
+                feed = _fetch_newsapi(
+                    q=f"{query} stock",
+                    from_date=capped_start.strftime("%Y-%m-%d"),
+                    to_date=end_date,
+                    sort_by="publishedAt",
+                    limit=limit
+                )
+            else:
+                feed = _fetch_newsapi(
+                    q=f"{query} stock",
+                    from_date=start_date,
+                    to_date=end_date,
+                    sort_by="publishedAt",
+                    limit=limit
+                )
+
+            if feed:
+                print(f"[NewsAPI] Successfully fetched {len(feed)} articles for {query}")
+
+        # Fallback to yfinance if NewsAPI failed or no API key
+        if not feed and YFINANCE_AVAILABLE:
+            print(f"[yfinance] NewsAPI failed or unavailable, falling back to yfinance for {query}")
+            raw_feed = _fetch_yfinance_news(query, limit)
+
+            # Filter yfinance results by date range
+            if raw_feed:
+                feed = []
+                for article in raw_feed:
+                    pub_date = article.get("publishedAt", "")[:10]
+                    if pub_date and start_date <= pub_date <= end_date:
+                        feed.append(article)
+
+                print(f"[yfinance] Fetched {len(feed)} articles for {query} (filtered by date range)")
 
         # Normalize field names for compatibility with news_analyst.py
         for article in feed:
@@ -386,8 +438,12 @@ def get_news(
             if "summary" not in article:
                 article["summary"] = article.get("description", "")
 
+        if not feed:
+            print(f"[News Tools] No news found for {query} from {start_date} to {end_date}")
+
         return feed or []
-    except Exception:
+    except Exception as e:
+        print(f"[News Tools] Error in get_news: {str(e)}")
         return []
 
 
@@ -413,10 +469,17 @@ def get_global_news(
     """
     try:
         if not NEWSAPI_KEY:
+            print("[NewsAPI] No API key configured for global news. Set NEWSAPI_KEY in .env")
             return []
 
+        # Cap at 30 days for NewsAPI free tier
+        actual_days = look_back_days
+        if look_back_days > 30:
+            print(f"[NewsAPI] Warning: Free tier limited to 30 days. Requested {look_back_days} days, using 30 days for global news.")
+            actual_days = 30
+
         end_dt = datetime.fromisoformat(curr_date).date()
-        start_dt = end_dt - timedelta(days=look_back_days)
+        start_dt = end_dt - timedelta(days=actual_days)
 
         feed = _fetch_newsapi(
             q="stock market OR economy OR federal reserve",
@@ -425,6 +488,9 @@ def get_global_news(
             sort_by="publishedAt",
             limit=limit
         )
+
+        if feed:
+            print(f"[NewsAPI] Successfully fetched {len(feed)} global/macro news articles")
 
         # Normalize field names for compatibility with news_analyst.py
         for article in feed:
@@ -440,8 +506,12 @@ def get_global_news(
             if "summary" not in article:
                 article["summary"] = article.get("description", "")
 
+        if not feed:
+            print(f"[NewsAPI] No global news found from {start_dt} to {end_dt}")
+
         return feed or []
-    except Exception:
+    except Exception as e:
+        print(f"[News Tools] Error in get_global_news: {str(e)}")
         return []
 
 

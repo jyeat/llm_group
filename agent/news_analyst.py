@@ -344,7 +344,7 @@ def create_news_analyst(llm):
         if not relevant_items:
             # Hard fallback if nothing kept
             fallback = NewsAnalysisOutput(
-                analysis_summary=f"No company-relevant news found for {ticker} in the past {lookback_days} days.",
+                analysis_summary=f"No company-relevant news found for {ticker} in the past {lookback_days} days (NewsAPI attempted first, yfinance as fallback).",
                 lookback_window_days=lookback_days,
                 coverage_stats={"articles": 0, "sources": 0, "unique_topics": 0, "raw_articles": raw_total},
                 macro_themes=[],
