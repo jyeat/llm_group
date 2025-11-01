@@ -9,7 +9,7 @@ from langchain_core.tools import tool
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
-from simplified_tradingagents.config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
+from config import FMP_API_KEY, FMP_BASE_URL, FMP_TIMEOUT
 
 
 @tool

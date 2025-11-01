@@ -11,7 +11,7 @@
 
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from simplified_tradingagents.config import LLM_MODEL, LLM_TEMPERATURE, GOOGLE_GENAI_API_KEY
+from config import LLM_MODEL, LLM_TEMPERATURE, GOOGLE_GENAI_API_KEY
 from pydantic import BaseModel, Field
 from typing import List, Literal
 import json

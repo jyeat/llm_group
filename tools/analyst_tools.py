@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 import requests
 import pandas as pd
-from simplified_tradingagents.config import ALPHA_VANTAGE_API_KEY, AV_BASE_URL, AV_TIMEOUT
+from config import ALPHA_VANTAGE_API_KEY, AV_BASE_URL, AV_TIMEOUT
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 

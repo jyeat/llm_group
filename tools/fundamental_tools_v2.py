@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 import requests
-from simplified_tradingagents.config import ALPHA_VANTAGE_API_KEY, AV_BASE_URL, AV_TIMEOUT
+from config import ALPHA_VANTAGE_API_KEY, AV_BASE_URL, AV_TIMEOUT
 
 
 @tool
