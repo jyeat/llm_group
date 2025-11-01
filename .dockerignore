@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environment files (will be mounted separately)
+.env
+
+# Cache and temporary files
+*.log
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Analysis results (will be mounted as volumes)
+analysis/
+ui/analysis_cache/
+*.json
+
+# Documentation
+*.md
+!README_MC_SZ_INTEGRATION.md
+!NEWSAPI_SETUP_GUIDE.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backups
+*.bak
+*.backup
+*~

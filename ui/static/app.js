@@ -710,17 +710,72 @@ function buildNewsContent(data) {
         </div>`;
     }
     
-    // Selected News Articles
-    if (data.selected_news && data.selected_news.length > 0) {
+    // Highlighted Articles (with direct links to sources)
+    if (data.highlighted_articles && data.highlighted_articles.length > 0) {
+        html += `<div class="data-section">
+            <h3>📰 Top News Articles (Click to Read Full Article)</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">`;
+
+        data.highlighted_articles.forEach(article => {
+            const sentimentColor = article.sentiment === 'bullish' ? 'var(--accent-green)' :
+                                  article.sentiment === 'bearish' ? 'var(--accent-red)' :
+                                  'var(--accent-yellow)';
+
+            const impactBadge = article.impact_scope === 'company' ? '🏢 Company' :
+                               article.impact_scope === 'macro' ? '🌍 Macro' :
+                               '📊 Industry';
+
+            const relevancePercent = (article.relevance_score * 100).toFixed(0);
+
+            html += `
+                <div style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 8px; border-left: 3px solid ${sentimentColor};">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                        <div class="data-value ${getSentimentClass(article.sentiment)}" style="font-size: 0.85em;">${article.sentiment}</div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span style="color: var(--text-muted); font-size: 0.8em;">${impactBadge}</span>
+                            <span style="color: var(--accent-blue); font-size: 0.8em;">Relevance: ${relevancePercent}%</span>
+                        </div>
+                    </div>
+                    <a href="${article.url}" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                        <h4 style="color: var(--accent-blue); margin: 8px 0; font-size: 1em; cursor: pointer; transition: color 0.2s;"
+                            onmouseover="this.style.color='var(--accent-yellow)'"
+                            onmouseout="this.style.color='var(--accent-blue)'">
+                            ${article.title} 🔗
+                        </h4>
+                    </a>
+                    <p style="color: var(--text-secondary); font-size: 0.9em; line-height: 1.6; margin: 8px 0;">${article.summary}</p>
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                        <div style="color: var(--text-muted); font-size: 0.8em;">
+                            📅 ${new Date(article.published_at).toLocaleDateString()} |
+                            📰 ${article.source}
+                        </div>
+                        ${article.tags && article.tags.length > 0 ? `
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                ${article.tags.slice(0, 3).map(tag => `
+                                    <span style="background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); padding: 2px 8px; border-radius: 4px; font-size: 0.75em;">
+                                        ${tag}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>`;
+        });
+
+        html += `</div></div>`;
+    }
+
+    // Legacy format support (old selected_news format)
+    else if (data.selected_news && data.selected_news.length > 0) {
         html += `<div class="data-section">
             <h3>Top News Articles</h3>
             <div style="display: flex; flex-direction: column; gap: 15px;">`;
-        
+
         data.selected_news.forEach(news => {
-            const impactColor = news.impact === 'high' ? 'var(--accent-red)' : 
-                               news.impact === 'medium' ? 'var(--accent-yellow)' : 
+            const impactColor = news.impact === 'high' ? 'var(--accent-red)' :
+                               news.impact === 'medium' ? 'var(--accent-yellow)' :
                                'var(--text-secondary)';
-            
+
             html += `
                 <div style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 8px; border-left: 3px solid ${impactColor};">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -732,7 +787,7 @@ function buildNewsContent(data) {
                     <div style="color: var(--text-muted); font-size: 0.8em; margin-top: 8px;">Source: ${news.source}</div>
                 </div>`;
         });
-        
+
         html += `</div></div>`;
     }
     
