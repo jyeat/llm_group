@@ -288,11 +288,11 @@ def create_news_analyst(llm):
         max_macro = int(state.get("max_macro_articles", 80))
         max_kept = int(state.get("max_kept_articles", 80))  # after relevance filter
 
-        # Import your existing tools (adapt path to your project)
+        # Import NewsAPI tools (free alternative to Alpha Vantage)
         try:
-            from simplified_tradingagents.tools.news_tools import get_news, get_global_news
+            from simplified_tradingagents.tools.news_tools_newsapi import get_news, get_global_news
         except Exception:
-            from tools.news_tools import (
+            from tools.news_tools_newsapi import (
                 get_news,         # .invoke({"query": str, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "limit": int})
                 get_global_news   # .invoke({"curr_date": "YYYY-MM-DD", "look_back_days": int, "limit": int})
             )
