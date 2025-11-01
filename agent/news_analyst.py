@@ -381,8 +381,13 @@ def create_news_analyst(llm):
             it["impact_scope"] = relevant_kept[i].get("impact_scope", "macro")
             it["relevance_score"] = float(relevant_kept[i].get("relevance_score", 0.0))
 
-        # Stats
-        srcs = sorted(list({(it.get("source") or "").strip() for it in compact_kept if it.get("source")}))  # kept sources
+        # Stats - handle source being either string or dict (NewsAPI uses dict)
+        def get_source_name(source):
+            if isinstance(source, dict):
+                return (source.get("name") or "").strip()
+            return (source or "").strip()
+
+        srcs = sorted(list({get_source_name(it.get("source")) for it in compact_kept if it.get("source")}))  # kept sources
         unique_topics = _estimate_unique_topics(compact_kept)
 
         # ---- Step 3: Strict prompt (JSON only) ----
