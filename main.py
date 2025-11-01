@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 # Add the parent directory to Python path so we can import simplified_tradingagents
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from simplified_tradingagents.trading_graph import create_trading_graph
+from trading_graph import create_trading_graph
 
 # Load environment variables from .env file
 load_dotenv()
@@ -47,10 +47,17 @@ def print_analysis_summary(result: dict):
 
     # Parse JSON results
     try:
+        news_analysis = json.loads(result.get('news_analysis', '{}'))
         market_analysis = json.loads(result['market_analysis'])
         fundamental_analysis = json.loads(result['fundamental_analysis'])
         bull_argument = json.loads(result['bull_argument'])
         bear_argument = json.loads(result['bear_argument'])
+
+        # News Analysis Summary
+        print_section("NEWS ANALYSIS", width=80)
+        print(f"Overall Sentiment: {str(news_analysis.get('overall_sentiment', 'N/A')).upper()}")
+        print(f"Confidence: {news_analysis.get('confidence_score', 0):.2%}")
+        print(f"Summary: {news_analysis.get('analysis_summary', 'N/A')}")
 
         # Market Analysis Summary
         print_section("MARKET ANALYSIS (Technical)", width=80)
@@ -151,6 +158,7 @@ def print_detailed_results(result: dict):
     print_section("DETAILED RESULTS (JSON)", width=80)
 
     sections = [
+        ("NEWS ANALYSIS", result.get('news_analysis', '{}')),
         ("MARKET ANALYSIS", result['market_analysis']),
         ("FUNDAMENTAL ANALYSIS", result['fundamental_analysis']),
         ("BULL ARGUMENT", result['bull_argument']),

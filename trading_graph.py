@@ -14,8 +14,8 @@ from typing import Dict, Any
 from langgraph.graph import StateGraph, END
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from simplified_tradingagents.state import TradingState
-from simplified_tradingagents.config import (
+from state import TradingState
+from config import (
     LLM_MODEL,
     LLM_TEMPERATURE,
     SUPERVISOR_MODEL,
@@ -24,11 +24,12 @@ from simplified_tradingagents.config import (
 )
 
 # Import agent factories
-from simplified_tradingagents.agent.market_analyst_v2 import create_market_analyst
-from simplified_tradingagents.agent.fundamentals_analyst_v2 import create_fundamentals_analyst
-from simplified_tradingagents.agent.bull_debater_v2 import create_bull_debater
-from simplified_tradingagents.agent.bear_debater_v2 import create_bear_debater
-from simplified_tradingagents.agent.supervisor_v2 import create_supervisor
+from agent.market_analyst_v2 import create_market_analyst
+from agent.fundamentals_analyst_v2 import create_fundamentals_analyst
+from agent.news_analyst import create_news_analyst
+from agent.bull_debater_v2 import create_bull_debater
+from agent.bear_debater_v2 import create_bear_debater
+from agent.supervisor_v2 import create_supervisor
 
 
 class TradingAgentsGraph:
@@ -95,6 +96,8 @@ class TradingAgentsGraph:
 
         START
           ↓
+        news_analyst (news analysis)
+          ↓
         market_analyst (technical analysis)
           ↓
         fundamentals_analyst (financial analysis)
@@ -114,6 +117,7 @@ class TradingAgentsGraph:
         workflow = StateGraph(TradingState)
 
         # Create agent nodes using factory functions
+        news_analyst_node = create_news_analyst(self.llm)
         market_analyst_node = create_market_analyst(self.llm)
         fundamentals_analyst_node = create_fundamentals_analyst(self.llm)
         bull_debater_node = create_bull_debater(self.llm)
@@ -121,6 +125,7 @@ class TradingAgentsGraph:
         supervisor_node = create_supervisor(self.supervisor_llm)  # Use deep thinking model
 
         # Add nodes to the graph
+        workflow.add_node("news_analyst", news_analyst_node)
         workflow.add_node("market_analyst", market_analyst_node)
         workflow.add_node("fundamentals_analyst", fundamentals_analyst_node)
         workflow.add_node("bull_debater", bull_debater_node)
@@ -128,7 +133,8 @@ class TradingAgentsGraph:
         workflow.add_node("supervisor", supervisor_node)
 
         # Define the linear workflow edges
-        workflow.set_entry_point("market_analyst")
+        workflow.set_entry_point("news_analyst")
+        workflow.add_edge("news_analyst", "market_analyst")
         workflow.add_edge("market_analyst", "fundamentals_analyst")
         workflow.add_edge("fundamentals_analyst", "bull_debater")
         workflow.add_edge("bull_debater", "bear_debater")
@@ -140,7 +146,7 @@ class TradingAgentsGraph:
 
         if self.debug:
             print("[TradingAgentsGraph] Graph compiled successfully")
-            print("Workflow: market_analyst → fundamentals_analyst → bull_debater → bear_debater → supervisor")
+            print("Workflow: news_analyst → market_analyst → fundamentals_analyst → bull_debater → bear_debater → supervisor")
 
         return compiled_graph
 
@@ -149,11 +155,12 @@ class TradingAgentsGraph:
         Run the complete trading analysis for a given ticker and date.
 
         This executes the full agent workflow:
-        1. Fetches technical data and analyzes market conditions
-        2. Fetches fundamental data and analyzes financial health
-        3. Builds bullish case from both analyses
-        4. Builds bearish case from both analyses
-        5. Synthesizes all perspectives into risk-tiered recommendations
+        1. Fetches company-relevant news (company + sector/macro filtered) and analyzes sentiment/themes
+        2. Fetches technical data and analyzes market conditions
+        3. Fetches fundamental data and analyzes financial health
+        4. Builds bullish case from both analyses
+        5. Builds bearish case from both analyses
+        6. Synthesizes all perspectives into risk-tiered recommendations
 
         Args:
             ticker: Stock ticker symbol (e.g., "AAPL", "MSFT")
@@ -161,6 +168,8 @@ class TradingAgentsGraph:
 
         Returns:
             Dictionary containing the final state with all analysis results:
+            - news_analysis: Structured JSON from the News Analyst
+              (overall_sentiment, confidence_score, themes, risks, catalysts, evidence articles, sources, coverage stats)
             - market_analysis: Technical analysis JSON
             - fundamental_analysis: Fundamental analysis JSON
             - bull_argument: Bullish case JSON
@@ -183,6 +192,12 @@ class TradingAgentsGraph:
             "ticker": ticker,
             "date": date,
             "messages": [],
+
+            # Parameters for news_analyst
+            "lookback_days": 45,
+            "relevance_threshold": 0.5,
+
+            "news_analysis": "",
             "market_analysis": "",
             "fundamental_analysis": "",
             "bull_argument": "",
@@ -228,7 +243,11 @@ class TradingAgentsGraph:
             print(f"  - Confidence: {final_state.get('confidence', 0.0):.2f}")
             print(f"  - Rationale: {final_state.get('rationale', 'N/A')[:100]}...")
 
-        return final_state
+        merged_state = {**initial_state, **final_state}
+        merged_state.setdefault("ticker", ticker)
+        merged_state.setdefault("date", date)
+
+        return merged_state
 
     def get_graph_visualization(self) -> str:
         """
@@ -242,6 +261,20 @@ Trading Agents Workflow:
 
 ┌─────────────────────────────────────────────────────────────┐
 │                          START                              │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                      NEWS ANALYST                           │
+│  - Fetches company + macro/sector news                     │
+│  - Dedupe, normalize, and relevance-filter (company focus) │
+│  - Sort by relevance & recency; cap article count          │
+│  - Synthesizes themes, catalysts, risks                    │
+│  - Outputs: news_analysis (structured JSON)                │
+│    • analysis_summary, overall_sentiment, confidence_score │
+│    • macro_themes, company_impact                          │
+│    • catalysts, risk_radar                                 │
+│    • highlighted_articles (title/source/time/url/score)    │
+│    • coverage_stats, sources                               │
 └─────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
