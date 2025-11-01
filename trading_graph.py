@@ -195,7 +195,7 @@ class TradingAgentsGraph:
 
             # Parameters for news_analyst
             "lookback_days": 30,  # NewsAPI free tier max is 30 days
-            "relevance_threshold": 0.5,
+            "relevance_threshold": 0.4,  # Lowered to support any ticker, not just those in DEFAULT dictionaries
 
             "news_analysis": "",
             "market_analysis": "",

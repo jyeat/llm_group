@@ -176,7 +176,7 @@ def compute_relevance(
 
     # Direct company/ticker/alias hit
     if ticker and ticker.lower() in text:
-        score += 0.55
+        score += 0.70  # Increased from 0.55 to ensure ticker-only match passes threshold
     for alias in aliases:
         if alias.lower() in text:
             score += 0.45
@@ -283,7 +283,7 @@ def create_news_analyst(llm):
         competitors = state.get("competitors") or DEFAULT_COMPETITORS.get(ticker, [])
         sector_tags = state.get("sector_tags") or DEFAULT_SECTOR_TAGS.get(ticker, [])
         macro_terms = state.get("macro_terms") or DEFAULT_MACRO_TERMS
-        relevance_threshold: float = float(state.get("relevance_threshold", 0.6))
+        relevance_threshold: float = float(state.get("relevance_threshold", 0.4))  # Lowered from 0.6 to support any ticker
         max_company = int(state.get("max_company_articles", 50))
         max_macro = int(state.get("max_macro_articles", 80))
         max_kept = int(state.get("max_kept_articles", 80))  # after relevance filter
