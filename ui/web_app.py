@@ -17,10 +17,14 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 # Add parent directory to path for imports (ui/ folder is one level down)
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Use .resolve() to get absolute paths for proper import resolution
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trading_graph import create_trading_graph
-from ui.cache_manager import cache_manager
+
+# Import cache_manager from same directory
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cache_manager import cache_manager
 
 app = FastAPI(title="Trading Agents Dashboard")
 
@@ -185,15 +189,31 @@ async def run_analysis_with_progress(
 
     # Run analysis with real-time progress tracking via streaming
     # This uses LangGraph's .stream() to get updates as each agent completes
-    result = None
-    final_state = None
 
-    async def run_graph_stream():
-        """Run the graph with streaming in a thread"""
-        nonlocal final_state
+    # Shared state for tracking progress across thread
+    progress_state = {"final_state": None, "current_node": None}
+
+    def run_graph_stream():
+        """Run the graph with streaming (regular function for to_thread)"""
+        accumulated_state = dict(initial_state)  # Start with initial state
+        final_output = None
+
         for output in graph.graph.stream(initial_state):
-            final_state = output
-        return final_state
+            # Update shared state for progress tracking
+            if output:
+                node_name = list(output.keys())[0]
+                node_state = output[node_name]
+
+                # Accumulate all state updates
+                accumulated_state.update(node_state)
+
+                # Track progress
+                progress_state["current_node"] = node_name
+                progress_state["final_state"] = output
+                final_output = output
+
+        # Return the accumulated state, not just the last node's output
+        return accumulated_state
 
     # Run graph streaming in background with timeout
     try:
@@ -203,6 +223,7 @@ async def run_analysis_with_progress(
 
         # Monitor for completion with timeout
         last_progress = 5
+        last_node = None
         start_time = asyncio.get_event_loop().time()
 
         while not stream_task.done():
@@ -212,23 +233,22 @@ async def run_analysis_with_progress(
                 stream_task.cancel()
                 raise asyncio.TimeoutError()
 
-            # Send keep-alive progress update every 2 seconds
+            # Send progress update every 2 seconds
             await asyncio.sleep(2)
 
-            # If we have final_state, extract current node
-            if final_state:
-                # Get the latest completed node
-                node_name = list(final_state.keys())[0] if final_state else None
-                if node_name:
-                    progress = calculate_progress_from_node(node_name)
-                    if progress > last_progress:
-                        await websocket.send_json({
-                            "type": "progress",
-                            "agent": node_name,
-                            "progress": progress,
-                            "message": f"Completed {node_name.replace('_', ' ').title()}..."
-                        })
-                        last_progress = progress
+            # Check if a new node has completed
+            current_node = progress_state.get("current_node")
+            if current_node and current_node != last_node:
+                progress = calculate_progress_from_node(current_node)
+                if progress > last_progress:
+                    await websocket.send_json({
+                        "type": "progress",
+                        "agent": current_node,
+                        "progress": progress,
+                        "message": f"Completed {current_node.replace('_', ' ').title()}..."
+                    })
+                    last_progress = progress
+                    last_node = current_node
 
         # Get final result
         result = await stream_task
@@ -242,11 +262,17 @@ async def run_analysis_with_progress(
         print(f"[WebSocket] Analysis timeout for {ticker} on {date}")
         raise
 
-    # Extract the final state from the last output
+    # result is now the accumulated state from all agents
+    # No need to extract - it's already the full state dict
+
+    # Debug: Print what we got
+    print(f"[WebSocket] Final result keys: {list(result.keys()) if result else 'None'}")
     if result:
-        # LangGraph stream returns dict with node_name as key
-        node_name = list(result.keys())[0]
-        result = result[node_name]
+        print(f"[WebSocket] Has market_analysis: {'market_analysis' in result}")
+        print(f"[WebSocket] Has news_analysis: {'news_analysis' in result}")
+        print(f"[WebSocket] Has fundamental_analysis: {'fundamental_analysis' in result}")
+        print(f"[WebSocket] Has bull_argument: {'bull_argument' in result}")
+        print(f"[WebSocket] Has bear_argument: {'bear_argument' in result}")
 
     # Send final progress
     await websocket.send_json({
@@ -255,28 +281,30 @@ async def run_analysis_with_progress(
         "progress": 100,
         "message": "Analysis complete!"
     })
-    
+
     # Parse and structure the results
     structured_result = {
-        "ticker": result.get("ticker"),
-        "date": result.get("date"),
-        "decision": result.get("decision"),
-        "confidence": result.get("confidence"),
-        "rationale": result.get("rationale"),
+        "ticker": result.get("ticker") if result else ticker,
+        "date": result.get("date") if result else date,
+        "decision": result.get("decision") if result else "neutral",
+        "confidence": result.get("confidence") if result else 0.0,
+        "rationale": result.get("rationale") if result else "",
         "agents": {
-            "market_analyst": parse_json_safe(result.get("market_analysis", "{}")),
-            "fundamentals_analyst": parse_json_safe(result.get("fundamental_analysis", "{}")),
-            "news_analyst": parse_json_safe(result.get("news_analysis", "{}")),
-            "bull_debater": parse_json_safe(result.get("bull_argument", "{}")),
-            "bear_debater": parse_json_safe(result.get("bear_argument", "{}")),
-            "supervisor": parse_json_safe(result.get("supervisor_decision", "{}"))
+            "market_analyst": parse_json_safe(result.get("market_analysis", "{}")) if result else {},
+            "fundamentals_analyst": parse_json_safe(result.get("fundamental_analysis", "{}")) if result else {},
+            "news_analyst": parse_json_safe(result.get("news_analysis", "{}")) if result else {},
+            "bull_debater": parse_json_safe(result.get("bull_argument", "{}")) if result else {},
+            "bear_debater": parse_json_safe(result.get("bear_argument", "{}")) if result else {},
+            "supervisor": parse_json_safe(result.get("supervisor_decision", "{}")) if result else {}
         },
         "from_cache": False
     }
     
-    # Save to cache
-    cache_manager.save_cache(ticker, date, result)
-    
+    # Save to cache - save the full result state, not the structured_result
+    # The cache expects the raw state with all analysis fields
+    if result:
+        cache_manager.save_cache(ticker, date, result)
+
     return structured_result
 
 
