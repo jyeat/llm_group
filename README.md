@@ -80,7 +80,6 @@ This project implements a sophisticated trading analysis system using LangGraph 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/jyeat/llm_group.git
-cd llm_group/simplified_tradingagents
 
 # 2. Create and configure .env file
 cp .env.example .env
@@ -122,10 +121,6 @@ python ui/web_app.py
 cd ui
 bash start_dashboard.sh
 
-# Option 3: Docker (recommended for production)
-docker-compose up
-```
-
 Then open: **http://localhost:8000**
 
 ## Project Structure
@@ -157,17 +152,9 @@ simplified_tradingagents/
 ├── main.py                          # CLI interface
 ├── langsmith_config.py              # LangSmith setup
 ├── verify_setup.py                  # Setup verification
-├── Dockerfile                       # Docker image
-├── docker-compose.yml               # Docker orchestration
-├── docker-run.sh                    # Docker helper script
 ├── .env.example                     # Environment template
 ├── .gitignore                       # Git ignore rules
 ├── requirements.txt                 # Python dependencies
-├── DOCKER_GUIDE.md                  # Docker documentation
-├── LANGSMITH_SETUP.md               # LangSmith guide
-├── LANGSMITH_QUICKSTART.md          # LangSmith quick start
-├── NEWSAPI_SETUP_GUIDE.md           # NewsAPI setup
-├── COMPARISON_WITH_ORIGINAL.md      # Branch comparison
 └── README.md                        # This file
 ```
 
