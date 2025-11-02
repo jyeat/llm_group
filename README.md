@@ -11,7 +11,6 @@ This project implements a sophisticated trading analysis system using LangGraph 
 - **Risk-Tiered Recommendations**: Customized advice for conservative, balanced, and aggressive investors
 - **Real-Time Web Dashboard**: Live progress tracking with WebSocket updates
 - **LangSmith Integration**: Complete observability and tracing
-- **Docker Deployment**: Production-ready containerized setup
 
 ## Features
 
